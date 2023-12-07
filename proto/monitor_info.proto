@@ -1,0 +1,103 @@
+syntax = "proto3";
+package monitor.proto;
+
+//导入一些我们自己写的一些proto文件
+import "google/protobuf/empty.proto";
+import "net_info.proto";
+import "mem_info.proto";
+import "cpu_stat.proto";
+import "cpu_softirq.proto";
+import "cpu_load.proto";
+
+// message MemInfo {
+//   int64 total = 1;
+//   int64 free = 2;
+//   int64 avail= 3;
+//   int64 buffers = 4;
+//   int64 cached = 5;
+//   int64 swap_cached = 6;
+//   int64 active = 7;
+//   int64 inactive = 8;
+//   int64 active_anon = 9;
+//   int64 inactive_anon = 10;
+//   int64 active_file = 11;
+//   int64 inactive_file = 12;
+//   int64 dirty = 13;
+//   int64 writeback = 14;
+//   int64 anon_pages = 15;
+//   int64 mapped = 16;
+//   int64 kReclaimable = 17;
+//   int64 sReclaimable = 18;
+//   int64 sUnreclaim = 19;
+//   int32 used_percent = 31;
+// }
+
+// message CpuStat{
+//   string cpu_name = 1;
+//   float cpu_percent = 2;
+//   float usr_percent = 3;
+//   float system_percent = 4;
+//   float nice_percent = 5;
+//   float idle_percent = 6;
+//   float io_wait_percent = 7;
+//   float irq_percent = 8;
+//   float soft_irq_percent = 9;
+// }
+// message SoftIrq {
+//   string cpu = 1;
+//   float hi = 2;
+//   float timer = 3;
+//   float net_tx = 4;
+//   float net_rx = 5;
+//   float block = 6;
+//   float irq_poll = 7;
+//   float tasklet = 8;
+//   float sched = 9;
+//   float hrtimer = 10;
+//   float rcu = 11;
+// }
+
+// message CpuLoad {
+//   float load_avg_1 = 1;
+//   float load_avg_3 = 2;
+//   float load_avg_15 = 3;
+// }
+
+
+
+// message NetInfo {
+//   string name = 1;
+//   int64 send_rate = 2; 
+//   int64 rcv_rate = 3;
+//   int64 send_packets_rate = 4;
+//   int64 rcv_packets_rate = 5;
+// }
+
+
+
+//这个地方我们就是使用上我们自己写的一些proto类对象
+//这是一个消息类型，包含一些系统监控的信息，如CPU负载，内存使用，网络使用，软中断的消息类型
+//repeated表示后面都是重复的消息类型，表示可以包含多个CPU状态和软中断信息
+//我们可以使用add_soft_irq来像soft_irq中添加新的softirq对象,使用add_cpu_stat来像cpu_stat中添加新的cpu_stat对象
+//
+//这个就是一个大类，里面就是需要管理的各种大类
+message MonitorInfo{
+  string name = 1;
+  repeated SoftIrq soft_irq = 4;//相当于是一个vector数组
+  CpuLoad cpu_load = 5;
+  repeated CpuStat cpu_stat = 6;
+  MemInfo mem_info = 7;//在获得这个对象的时候，需要调用一个mutable_()对象
+  repeated NetInfo net_info = 8;
+}
+
+//使用grpc中的某个服务，这个服务就是我们自己定义的服务
+//这样就能够使用我们自己定义的服务了，proto会自动生成相应的代码
+//这样在客户端和服务器就会生成相应的代码
+service GrpcManager {
+  //下面的就是服务段和客户端的接口，monitorinfo中就是客户端请求的数据，不需要客户端返回任何数据
+  rpc SetMonitorInfo(MonitorInfo) returns (google.protobuf.Empty) {
+  }
+  //客户端想要获取信息，不需要传入任何数据，但是需要返回一个MonitorInfo对象
+  rpc GetMonitorInfo(google.protobuf.Empty) returns (MonitorInfo) {
+  }
+}

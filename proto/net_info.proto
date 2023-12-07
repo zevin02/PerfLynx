@@ -1,0 +1,10 @@
+syntax = "proto3";
+package monitor.proto;
+//网络的proto的
+message NetInfo {
+    string name = 1;
+    float send_rate = 2;//发送字节的速率
+    float rcv_rate = 3;//接收字节的速率
+    float send_packets_rate = 4;//发送包的速率
+    float rcv_packets_rate = 5;//接收包的速率
+  }
