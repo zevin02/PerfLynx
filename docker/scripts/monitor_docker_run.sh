@@ -36,7 +36,7 @@ echo "start docker"
 # docker内外的ip是一样的
 # -e就是环境变量的意思,docker内外的信息保持一致，把他复给docker里面的文件信息
 # 我们把当前的项目目录挂载到docker下的work目录，所以在docker内外对这个目录进行修改，修改的操作都会持久化保留下来
-
+# XDG_RUNTIME_DIR是一个环境变量，用来指定当前用户的运行时目录，在Linux系统中，可以在容器中访问和主机相同的运行时目录
 
 
 docker run -it -d \
